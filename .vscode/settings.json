@@ -1,0 +1,10 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[php]": { "editor.defaultFormatter": "bmewburn.vscode-intelephense-client" },
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "editor.rulers": [100],
+  "php.intelephense.environment.phpVersion": "8.2.0",
+  "emmet.includeLanguages": { "javascript": "javascriptreact" }
+}
