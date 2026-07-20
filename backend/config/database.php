@@ -1,12 +1,5 @@
 <?php
-/**
- * Ket noi MySQL qua PDO (Singleton). Prepared Statement bat buoc moi truy van.
- *
- * TRIEN KHAI TREN INFINITYFREE:
- *  DB_HOST : hostname tu hPanel -> MySQL Databases (vd: sql304.epizy.com)
- *  DB_NAME : epiz_xxxxxxxx_resnet
- *  DB_USER : epiz_xxxxxxxx
- */
+
 define("DB_HOST", getenv("DB_HOST") ?: "localhost");
 define("DB_NAME", getenv("DB_NAME") ?: "resnet_db");
 define("DB_USER", getenv("DB_USER") ?: "root");
