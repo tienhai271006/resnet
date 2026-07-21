@@ -1,4 +1,8 @@
 <?php
+require_once __DIR__ . "/../models/UserModel.php";
+require_once __DIR__ . "/../models/DocumentModel.php";
+require_once __DIR__ . "/../models/FollowModel.php";
+
 class AuthController {
     public static function register(array $body): void {
         $name = trim($body["name"] ?? "");
@@ -16,18 +20,11 @@ class AuthController {
         if ($role === "researcher" && !$institution) $errors[] = "Nhà nghiên cứu cần khai báo đơn vị công tác.";
         if ($errors) Response::err(implode(" ", $errors));
 
-        $db = getDB();
-        $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        if ($stmt->fetch()) Response::err("Email này đã được sử dụng.", 409);
+        if (UserModel::findByEmail($email)) Response::err("Email này đã được sử dụng.", 409);
 
         $hash = password_hash($password, PASSWORD_BCRYPT, ["cost" => 12]);
         // researcher moi dang ky mac dinh is_verified=0, admin xac minh thu cong truoc khi cho dang bai
-        $stmt = $db->prepare(
-            "INSERT INTO users (name,email,password,role,institution,is_verified) VALUES (?,?,?,?,?,?)"
-        );
-        $stmt->execute([$name, $email, $hash, $role, $institution, $role === "reader" ? 1 : 0]);
-        $id = (int)$db->lastInsertId();
+        $id = UserModel::create($name, $email, $hash, $role, $institution, $role === "reader");
 
         Response::ok(["id" => $id, "name" => $name, "email" => $email, "role" => $role],
             $role === "researcher"
@@ -41,18 +38,14 @@ class AuthController {
         $password = $body["password"] ?? "";
         if (!$email || !$password) Response::err("Vui lòng nhập email và mật khẩu.");
 
-        $db = getDB();
-        $stmt = $db->prepare("SELECT * FROM users WHERE email = ? AND is_active = 1");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
+        $user = UserModel::findActiveByEmail($email);
 
         if (!$user || !password_verify($password, $user["password"])) {
             Response::err("Email hoặc mật khẩu không đúng.", 401);
         }
 
         if (password_needs_rehash($user["password"], PASSWORD_BCRYPT, ["cost" => 12])) {
-            $newHash = password_hash($password, PASSWORD_BCRYPT, ["cost" => 12]);
-            $db->prepare("UPDATE users SET password=? WHERE id=?")->execute([$newHash, $user["id"]]);
+            UserModel::updatePassword((int)$user["id"], password_hash($password, PASSWORD_BCRYPT, ["cost" => 12]));
         }
 
         session_regenerate_id(true);
@@ -61,7 +54,7 @@ class AuthController {
         $_SESSION["user_email"] = $user["email"];
         $_SESSION["user_role"] = $user["role"];
 
-        $db->prepare("UPDATE users SET last_login=NOW() WHERE id=?")->execute([$user["id"]]);
+        UserModel::touchLastLogin((int)$user["id"]);
 
         Response::ok([
             "id" => $user["id"], "name" => $user["name"], "email" => $user["email"],
@@ -77,22 +70,12 @@ class AuthController {
 
     public static function me(): void {
         Auth::required();
-        $db = getDB();
-        $stmt = $db->prepare(
-            "SELECT id,name,email,role,institution,orcid_id,bio,avatar,is_verified,created_at FROM users WHERE id=?"
-        );
-        $stmt->execute([$_SESSION["user_id"]]);
-        $user = $stmt->fetch();
+        $user = UserModel::findProfileById((int)$_SESSION["user_id"]);
         if (!$user) Response::err("Không tìm thấy người dùng.", 404);
 
         // So lieu tong quan ho so
-        $stmt = $db->prepare("SELECT COUNT(*) FROM documents WHERE owner_id=? AND status='approved'");
-        $stmt->execute([$user["id"]]);
-        $user["published_count"] = (int)$stmt->fetchColumn();
-
-        $stmt = $db->prepare("SELECT COUNT(*) FROM follows WHERE following_id=?");
-        $stmt->execute([$user["id"]]);
-        $user["followers_count"] = (int)$stmt->fetchColumn();
+        $user["published_count"] = DocumentModel::countPublishedByOwner((int)$user["id"]);
+        $user["followers_count"] = FollowModel::countFollowers((int)$user["id"]);
 
         Response::ok($user);
     }
@@ -105,7 +88,6 @@ class AuthController {
         $orcid = trim($body["orcid_id"] ?? "");
         if (mb_strlen($name) < 2) Response::err("Họ tên phải có ít nhất 2 ký tự.");
 
-        $db = getDB();
         $avatarPath = null;
         if (!empty($_FILES["avatar"]["name"])) {
             try {
@@ -115,11 +97,7 @@ class AuthController {
             } catch (RuntimeException $e) { Response::err($e->getMessage()); }
         }
 
-        $sql = "UPDATE users SET name=?, bio=?, institution=?, orcid_id=?" . ($avatarPath ? ", avatar=?" : "") . " WHERE id=?";
-        $prm = [$name, $bio, $institution, $orcid];
-        if ($avatarPath) $prm[] = $avatarPath;
-        $prm[] = $_SESSION["user_id"];
-        $db->prepare($sql)->execute($prm);
+        UserModel::updateProfile((int)$_SESSION["user_id"], $name, $bio, $institution, $orcid, $avatarPath);
 
         $_SESSION["user_name"] = $name;
         Response::ok(null, "Cập nhật hồ sơ thành công!");
@@ -128,8 +106,7 @@ class AuthController {
     /** Admin xac minh tai khoan nha nghien cuu truoc khi cho phep dang tai */
     public static function verifyResearcher(int $userId): void {
         Auth::role("admin");
-        $db = getDB();
-        $db->prepare("UPDATE users SET is_verified=1 WHERE id=? AND role='researcher'")->execute([$userId]);
+        UserModel::verifyResearcher($userId);
         Response::ok(null, "Đã xác minh nhà nghiên cứu.");
     }
 }
