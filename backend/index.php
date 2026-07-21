@@ -3,7 +3,7 @@
 $allowed = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://resnet-demo.infinityfreeapp.com", // <- cap nhat URL that khi deploy
+    "https://dautrau.rf.gd", // <- cap nhat URL that khi deploy
 ];
 $origin = $_SERVER["HTTP_ORIGIN"] ?? "";
 if (in_array($origin, $allowed, true)) {
