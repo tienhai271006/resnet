@@ -73,66 +73,66 @@ resnet/
 ## 4. Danh sach endpoint chinh
 
 ```
-POST   /api/auth/register
-POST   /api/auth/login
-POST   /api/auth/logout
-GET    /api/auth/me
-PUT    /api/auth/profile
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+GET /api/auth/me
+PUT /api/auth/profile
 
-GET    /api/categories
+GET /api/categories
 
-GET    /api/documents?q=&category_id=&sort=&page=
-GET    /api/documents?mine=1                      (cong trinh cua toi)
-GET    /api/documents/pending                      (admin - hang cho duyet)
-GET    /api/documents/:id
-POST   /api/documents                              (dang tai - researcher)
-PUT    /api/documents/:id
+GET /api/documents?q=&category_id=&sort=&page=
+GET /api/documents?mine=1 (cong trinh cua toi)
+GET /api/documents/pending (admin - hang cho duyet)
+GET /api/documents/:id
+POST /api/documents (dang tai - researcher)
+PUT /api/documents/:id
 DELETE /api/documents/:id
-GET    /api/documents/:id/download                 (kiem quyen + ghi log watermark)
-GET    /api/documents/:id/versions
-POST   /api/documents/:id/versions
-POST   /api/documents/:id/approve                  (admin)
-POST   /api/documents/:id/reject                   (admin)
-POST   /api/documents/:id/takedown                 (admin)
+GET /api/documents/:id/download (kiem quyen + ghi log watermark)
+GET /api/documents/:id/versions
+POST /api/documents/:id/versions
+POST /api/documents/:id/approve (admin)
+POST /api/documents/:id/reject (admin)
+POST /api/documents/:id/takedown (admin)
 
-POST   /api/documents/:id/access-requests           (xin quyen truy cap)
-GET    /api/documents/:id/access-requests           (chu so huu xem)
-POST   /api/access-requests/:id/approve
-POST   /api/access-requests/:id/reject
-GET    /api/documents/:id/permissions
+POST /api/documents/:id/access-requests (xin quyen truy cap)
+GET /api/documents/:id/access-requests (chu so huu xem)
+POST /api/access-requests/:id/approve
+POST /api/access-requests/:id/reject
+GET /api/documents/:id/permissions
 DELETE /api/permissions/:id
 
-POST   /api/documents/:id/report                   (to cao vi pham ban quyen)
-GET    /api/copyright-reports                       (admin)
-POST   /api/copyright-reports/:id/resolve           (admin)
-GET    /api/documents/:id/download-logs             (chu so huu truy vet)
+POST /api/documents/:id/report (to cao vi pham ban quyen)
+GET /api/copyright-reports (admin)
+POST /api/copyright-reports/:id/resolve (admin)
+GET /api/documents/:id/download-logs (chu so huu truy vet)
 
-POST   /api/documents/:id/like
-POST   /api/documents/:id/bookmark
-GET    /api/me/bookmarks
-POST   /api/documents/:id/cite
-GET    /api/documents/:id/citations
+POST /api/documents/:id/like
+POST /api/documents/:id/bookmark
+GET /api/me/bookmarks
+POST /api/documents/:id/cite
+GET /api/documents/:id/citations
 
-GET    /api/documents/:id/comments
-POST   /api/documents/:id/comments
+GET /api/documents/:id/comments
+POST /api/documents/:id/comments
 DELETE /api/comments/:id
-POST   /api/comments/:id/hide                        (admin)
+POST /api/comments/:id/hide (admin)
 
-POST   /api/users/:id/follow
-GET    /api/users/:id/followers
-GET    /api/users/:id/following
-GET    /api/users/:id
-GET    /api/users/:id/documents
-GET    /api/feed
+POST /api/users/:id/follow
+GET /api/users/:id/followers
+GET /api/users/:id/following
+GET /api/users/:id
+GET /api/users/:id/documents
+GET /api/feed
 
-GET    /api/notifications
-POST   /api/notifications/:id/read
-POST   /api/notifications/read-all
+GET /api/notifications
+POST /api/notifications/:id/read
+POST /api/notifications/read-all
 
-GET    /api/stats/summary
-GET    /api/stats/my
+GET /api/stats/summary
+GET /api/stats/my
 
-GET    /api/admin/users
-POST   /api/admin/users/:id/toggle-active
-POST   /api/admin/users/:id/verify
+GET /api/admin/users
+POST /api/admin/users/:id/toggle-active
+POST /api/admin/users/:id/verify
 ```
